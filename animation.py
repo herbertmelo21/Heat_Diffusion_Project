@@ -48,6 +48,6 @@ def create_temperature_animation_gif(csv_path, output_gif, sep=','):
 if __name__ == "__main__":
     create_temperature_animation_gif(
         csv_path='./output/output.csv',
-        output_gif='temperature_animation.gif',
+        output_gif='./output/temperature_animation.gif',
         sep=','
     )
