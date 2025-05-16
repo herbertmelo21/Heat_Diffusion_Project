@@ -1,43 +1,51 @@
 # Makefile for Heat Diffusion Simulation + Animation
 
 # Fortran compiler and flags
-FC       = gfortran
-FFLAGS   = -O3 -fopenmp
+FC     = gfortran
+FFLAGS = -O3 -fopenmp
 
-# Source files and executable name
-SRC      = main.f90 subroutines.f90
-EXE      = heat_diffusion
+# Sources
+MODULE_SRC = subroutines.f90
+MAIN_SRC   = main.f90
 
-# Python interpreter and animation script
-PYTHON        = python3
-ANIM_SCRIPT   = animation.py
+# Object files (order matters: module first)
+OBJS    = subroutines.o main.o
+EXE     = heat_diffusion
 
-# Output files
-CSV      = output/output.csv
-GIF      = output/temperature_animation.gif
+# Python animation script
+PYTHON      = python3
+ANIM_SCRIPT = animation.py
 
-# Default target: compile the Fortran executable
+# Output artifacts
+CSV = output/output.csv
+GIF = output/temperature_animation.gif
+
+# Default target: build executable
 all: $(EXE)
 
-# Build the Fortran program with OpenMP support
-$(EXE): $(SRC)
+# 1) Compile the module (produces diffusion.mod + subroutines.o)
+subroutines.o: $(MODULE_SRC)
+	$(FC) $(FFLAGS) -c $<
+
+# 2) Compile the main program (depends on diffusion.mod)
+main.o: $(MAIN_SRC) subroutines.o
+	$(FC) $(FFLAGS) -c $<
+
+# 3) Link the executable
+$(EXE): $(OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 
-# Run both simulation and animation
+# Run both the Fortran simulation and the Python animation
 run: $(EXE)
-	@echo Running Fortran simulation...
+	@echo "Running Fortran simulation..."
 	./$(EXE)
-	@echo Generating animation...
+	@echo "Generating animation..."
 	$(PYTHON) $(ANIM_SCRIPT)
-	@echo Done. Check $(GIF)
+	@echo "Done. See $(GIF)"
 
-# Remove compiled objects, modules, executable, and outputs
+# Remove compiled and generated files
 clean:
 	rm -f *.o *.mod $(EXE)
 	rm -f $(CSV) $(GIF)
 
-# Full clean: also remove caches or editor junk
-distclean: clean
-	rm -rf __pycache__ .vscode .DS_Store
-
-.PHONY: all run clean distclean
+.PHONY: all run clean
