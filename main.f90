@@ -30,7 +30,8 @@ program Heat_Diffusion_OMP
     call omp_set_num_threads(8)
 
     do istep = 1, n_time
-        !— Boundary (parallel) —!
+        write(*,*)istep
+        !â€” Boundary (parallel) â€”!
         !$omp parallel do default(shared) private(i)
         do i = 1, grid_size
             temperature(1,        i, istep) = 30.d0
@@ -40,7 +41,7 @@ program Heat_Diffusion_OMP
         end do
         !$omp end parallel do
 
-        !— Interior update (parallel, collapse two loops) —!
+        !â€” Interior update (parallel, collapse two loops) â€”!
         !$omp parallel do collapse(2) default(shared) private(i,j)
         do i = 2, grid_size-1
             do j = 2, grid_size-1
@@ -53,7 +54,7 @@ program Heat_Diffusion_OMP
         end do
         !$omp end parallel do
 
-        !— Output (serial) —!
+        !â€” Output (serial) â€”!
         do i = 1, grid_size
             do j = 1, grid_size
                 write(200,'(I0,",",I0,",",F12.6,",",I0)') i, j, &
