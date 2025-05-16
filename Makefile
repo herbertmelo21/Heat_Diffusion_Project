@@ -1,41 +1,43 @@
 # Makefile for Heat Diffusion Simulation + Animation
 
-# Compiler and flags
-FC = gfortran
-FFLAGS = -O3 -fopenmp
-SRC = main.f90 subroutines.f90
-EXE = heat_diffusion
+# Fortran compiler and flags
+FC       = gfortran
+FFLAGS   = -O3 -fopenmp
 
-# Python script
-PYTHON = python3
-ANIM_SCRIPT = animation.py
+# Source files and executable name
+SRC      = main.f90 subroutines.f90
+EXE      = heat_diffusion
+
+# Python interpreter and animation script
+PYTHON        = python3
+ANIM_SCRIPT   = animation.py
 
 # Output files
-CSV = output/output.csv
-GIF = output/temperature_animation.gif
+CSV      = output/output.csv
+GIF      = output/temperature_animation.gif
 
-# Default target
+# Default target: compile the Fortran executable
 all: $(EXE)
 
-# Compile Fortran code
+# Build the Fortran program with OpenMP support
 $(EXE): $(SRC)
 	$(FC) $(FFLAGS) -o $@ $^
 
-# Run simulation + animation
+# Run both simulation and animation
 run: $(EXE)
-	@echo "🔧 Running Fortran simulation..."
+	@echo Running Fortran simulation...
 	./$(EXE)
-	@echo "🎞 Generating animation..."
+	@echo Generating animation...
 	$(PYTHON) $(ANIM_SCRIPT)
-	@echo "✅ Done! Output: $(GIF)"
+	@echo Done. Check $(GIF)
 
-# Clean build and output files
+# Remove compiled objects, modules, executable, and outputs
 clean:
 	rm -f *.o *.mod $(EXE)
 	rm -f $(CSV) $(GIF)
 
-# Clean everything, including intermediate files
+# Full clean: also remove caches or editor junk
 distclean: clean
 	rm -rf __pycache__ .vscode .DS_Store
 
-.PHONY: all clean distclean run
+.PHONY: all run clean distclean
